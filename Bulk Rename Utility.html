@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bulk Rename Utility</title>
+
+<style>
+:root {
+  --bg: #ffffff;
+  --panel: #f3f3f3;
+  --text: #000000;
+  --border: #cccccc;
+  --accent: #007aff;
+}
+
+html.dark {
+  --bg: #000000;
+  --panel: #000000;
+  --text: #ffffff;
+  --border: #333333;
+  --accent: #00aaff;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Segoe UI, Roboto, Arial, sans-serif;
+}
+
+header {
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding: 14px;
+}
+
+.panel {
+  background: var(--panel);
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.section-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  cursor: pointer;
+  text-align: left;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"],
+select {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 8px;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Bulk Rename Utility</h1>
+  <button class="secondary" id="toggleDark">Dark Mode</button>
+</header>
+
+<div class="container">
+
+  <div class="panel">
+    <div class="section-title">Files to Rename</div>
+    <input type="file" id="fileInput" multiple>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Rename Rules</div>
+
+    <label>Replace</label>
+    <input type="text" id="replaceFrom" placeholder="Text to replace">
+
+    <label>With</label>
+    <input type="text" id="replaceTo" placeholder="Replacement">
+
+    <label>Prefix</label>
+    <input type="text" id="prefix">
+
+    <label>Suffix</label>
+    <input type="text" id="suffix">
+
+    <label>Remove Digits</label>
+    <input type="checkbox" id="rmDigits"> Yes
+    <br><br>
+
+    <label>Remove Symbols</label>
+    <input type="checkbox" id="rmSymbols"> Yes
+    <br><br>
+
+    <label>Case</label>
+    <select id="caseMode">
+      <option value="none">None</option>
+      <option value="lower">lowercase</option>
+      <option value="upper">UPPERCASE</option>
+      <option value="title">Title Case</option>
+    </select>
+
+    <!-- NEW TOGGLE -->
+    <label>Enable Auto Number</label>
+    <input type="checkbox" id="autoEnabled"> Yes
+    <br><br>
+
+    <label>Auto Number Start</label>
+    <input type="number" id="autoStart" value="1">
+
+    <button id="previewBtn" style="margin-top: 12px;">Preview</button>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Preview</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Original Name</th>
+          <th>New Name</th>
+        </tr>
+      </thead>
+      <tbody id="previewTable"></tbody>
+    </table>
+
+    <button id="zipBtn" style="margin-top: 12px;">Download ZIP</button>
+  </div>
+
+</div>
+
+<!--<div>https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js</script></div>-->
+
+<script>
+document.getElementById("toggleDark").onclick = () => {
+  document.documentElement.classList.toggle("dark");
+};
+
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, t => t[0].toUpperCase() + t.slice(1).toLowerCase());
+}
+
+let loadedFiles = [];
+
+document.getElementById("fileInput").addEventListener("change", e => {
+  loadedFiles = Array.from(e.target.files);
+});
+
+document.getElementById("previewBtn").addEventListener("click", () => {
+  const tbody = document.getElementById("previewTable");
+  tbody.innerHTML = "";
+
+  const replaceFrom = document.getElementById("replaceFrom").value;
+  const replaceTo = document.getElementById("replaceTo").value;
+  const prefix = document.getElementById("prefix").value;
+  const suffix = document.getElementById("suffix").value;
+  const rmDigits = document.getElementById("rmDigits").checked;
+  const rmSymbols = document.getElementById("rmSymbols").checked;
+  const caseMode = document.getElementById("caseMode").value;
+  const autoEnabled = document.getElementById("autoEnabled").checked;
+
+  let autoNum = parseInt(document.getElementById("autoStart").value);
+
+  window.preview = loadedFiles.map(file => {
+    let name = file.name;
+
+    if (replaceFrom) name = name.replaceAll(replaceFrom, replaceTo);
+    if (rmDigits) name = name.replace(/\d+/g, "");
+    if (rmSymbols) name = name.replace(/[^\w.\- ]+/g, "");
+
+    if (autoEnabled) {
+      name = prefix + autoNum + "_" + name + suffix;
+      autoNum++;
+    } else {
+      name = prefix + name + suffix;
+    }
+
+    if (caseMode === "lower") name = name.toLowerCase();
+    if (caseMode === "upper") name = name.toUpperCase();
+    if (caseMode === "title") name = toTitleCase(name);
+
+    return { old: file.name, new: name, file };
+  });
+
+  for (const row of window.preview) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${row.old}</td><td>${row.new}</td>`;
+    tbody.appendChild(tr);
+  }
+});
+
+document.getElementById("zipBtn").addEventListener("click", async () => {
+  if (!window.preview || window.preview.length === 0) {
+    alert("Generate preview first.");
+    return;
+  }
+
+  const zip = new JSZip();
+
+  for (const item of window.preview) {
+    const buf = await item.file.arrayBuffer();
+    zip.file(item.new, buf);
+  }
+
+  const blob = await zip.generateAsync({ type: "blob" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "renamed_files.zip";
+  link.click();
+});
+</script>
+
+</body>
+</html>

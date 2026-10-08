@@ -12,14 +12,16 @@
   --text: #000000;
   --border: #cccccc;
   --accent: #007aff;
+  --fieldset-bg: #ffffff;
 }
 
 html.dark {
   --bg: #000000;
-  --panel: #000000;
+  --panel: #0d0d0d;
   --text: #ffffff;
   --border: #333333;
   --accent: #00aaff;
+  --fieldset-bg: #1a1a1a;
 }
 
 body {
@@ -60,9 +62,45 @@ header h1 {
 
 .section-title {
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 4px;
+}
+
+/* Grid Layout for Rules */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  background: var(--fieldset-bg);
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+legend {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 4px;
+  color: var(--accent);
+}
+
+fieldset label {
+  font-size: 13px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
 }
 
 table {
@@ -75,7 +113,6 @@ th, td {
   border-bottom: 1px solid var(--border);
 }
 th {
-  cursor: pointer;
   text-align: left;
 }
 
@@ -85,7 +122,11 @@ input[type="file"],
 select {
   width: 100%;
   padding: 6px;
-  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
 }
 
 button {
@@ -97,6 +138,7 @@ button {
   cursor: pointer;
   font-weight: 600;
 }
+
 button.secondary {
   background: transparent;
   color: var(--text);
@@ -121,44 +163,98 @@ button.secondary {
 
   <div class="panel">
     <div class="section-title">Rename Rules</div>
+    
+    <div class="rules-grid">
+      
+      <!-- RegEx (1) -->
+      <fieldset>
+        <legend>RegEx (1)</legend>
+        <label>Match</label> <input type="text" id="regexMatch" placeholder="(.*)">
+        <label>Replace</label> <input type="text" id="regexReplace" placeholder="$1">
+      </fieldset>
 
-    <label>Replace</label>
-    <input type="text" id="replaceFrom" placeholder="Text to replace">
+      <!-- Repl. (3) -->
+      <fieldset>
+        <legend>Repl. (3)</legend>
+        <label>Replace</label> <input type="text" id="replaceFrom" placeholder="Text">
+        <label>With</label> <input type="text" id="replaceTo" placeholder="Replacement">
+      </fieldset>
 
-    <label>With</label>
-    <input type="text" id="replaceTo" placeholder="Replacement">
+      <!-- Case (4) & Extension (11) -->
+      <fieldset>
+        <legend>Case (4) & Ext (11)</legend>
+        <label>Name</label>
+        <select id="caseMode">
+          <option value="none">Same</option>
+          <option value="lower">lowercase</option>
+          <option value="upper">UPPERCASE</option>
+          <option value="title">Title Case</option>
+        </select>
+        <label>Extension</label>
+        <select id="extMode">
+          <option value="none">Same</option>
+          <option value="lower">lowercase</option>
+          <option value="upper">UPPERCASE</option>
+          <option value="remove">Remove</option>
+        </select>
+      </fieldset>
 
-    <label>Prefix</label>
-    <input type="text" id="prefix">
+      <!-- Remove (5) -->
+      <fieldset>
+        <legend>Remove (5)</legend>
+        <label>First n</label> <input type="number" id="rmFirst" value="0" min="0">
+        <label>Last n</label> <input type="number" id="rmLast" value="0" min="0">
+        <label>Filters</label>
+        <div style="display:flex; gap: 10px;">
+          <label class="checkbox-group"><input type="checkbox" id="rmDigits"> Digits</label>
+          <label class="checkbox-group"><input type="checkbox" id="rmSymbols"> Symbols</label>
+        </div>
+      </fieldset>
 
-    <label>Suffix</label>
-    <input type="text" id="suffix">
+      <!-- Add (7) -->
+      <fieldset>
+        <legend>Add (7)</legend>
+        <label>Prefix</label> <input type="text" id="prefix">
+        <label>Suffix</label> <input type="text" id="suffix">
+        <label>Insert</label> <input type="text" id="insertText" placeholder="Text">
+        <label>At Pos.</label> <input type="number" id="insertPos" value="0" min="0">
+      </fieldset>
 
-    <label>Remove Digits</label>
-    <input type="checkbox" id="rmDigits"> Yes
-    <br><br>
+      <!-- Auto Date (8) -->
+      <fieldset>
+        <legend>Auto Date (8)</legend>
+        <label>Mode</label>
+        <select id="dateMode">
+          <option value="none">None</option>
+          <option value="prefix">Prefix</option>
+          <option value="suffix">Suffix</option>
+        </select>
+        <label>Format</label>
+        <select id="dateFmt">
+          <option value="YMD">YYYYMMDD</option>
+          <option value="DMY">DDMMYYYY</option>
+          <option value="MDY">MMDDYYYY</option>
+        </select>
+      </fieldset>
 
-    <label>Remove Symbols</label>
-    <input type="checkbox" id="rmSymbols"> Yes
-    <br><br>
+      <!-- Numbering (10) -->
+      <fieldset>
+        <legend>Numbering (10)</legend>
+        <label>Mode</label>
+        <select id="numMode">
+          <option value="none">None</option>
+          <option value="prefix">Prefix</option>
+          <option value="suffix">Suffix</option>
+        </select>
+        <label>Start</label> <input type="number" id="autoStart" value="1">
+        <label>Incr.</label> <input type="number" id="autoIncr" value="1">
+        <label>Pad (0s)</label> <input type="number" id="autoPad" value="0" min="0">
+        <label>Sep.</label> <input type="text" id="autoSep" value="_">
+      </fieldset>
 
-    <label>Case</label>
-    <select id="caseMode">
-      <option value="none">None</option>
-      <option value="lower">lowercase</option>
-      <option value="upper">UPPERCASE</option>
-      <option value="title">Title Case</option>
-    </select>
+    </div>
 
-    <!-- NEW TOGGLE -->
-    <label>Enable Auto Number</label>
-    <input type="checkbox" id="autoEnabled"> Yes
-    <br><br>
-
-    <label>Auto Number Start</label>
-    <input type="number" id="autoStart" value="1">
-
-    <button id="previewBtn" style="margin-top: 12px;">Preview</button>
+    <button id="previewBtn" style="margin-top: 16px;">Preview Rules</button>
   </div>
 
   <div class="panel">
@@ -179,7 +275,8 @@ button.secondary {
 
 </div>
 
-<!--<div>https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js</script></div>-->
+<!-- Loaded JSZip correctly so the zip function works -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
 document.getElementById("toggleDark").onclick = () => {
@@ -200,36 +297,111 @@ document.getElementById("previewBtn").addEventListener("click", () => {
   const tbody = document.getElementById("previewTable");
   tbody.innerHTML = "";
 
+  // Get values from the UI
+  const regexMatch = document.getElementById("regexMatch").value;
+  const regexReplace = document.getElementById("regexReplace").value;
   const replaceFrom = document.getElementById("replaceFrom").value;
   const replaceTo = document.getElementById("replaceTo").value;
-  const prefix = document.getElementById("prefix").value;
-  const suffix = document.getElementById("suffix").value;
+  
+  const caseMode = document.getElementById("caseMode").value;
+  const extMode = document.getElementById("extMode").value;
+
+  const rmFirst = parseInt(document.getElementById("rmFirst").value) || 0;
+  const rmLast = parseInt(document.getElementById("rmLast").value) || 0;
   const rmDigits = document.getElementById("rmDigits").checked;
   const rmSymbols = document.getElementById("rmSymbols").checked;
-  const caseMode = document.getElementById("caseMode").value;
-  const autoEnabled = document.getElementById("autoEnabled").checked;
 
-  let autoNum = parseInt(document.getElementById("autoStart").value);
+  const prefix = document.getElementById("prefix").value;
+  const suffix = document.getElementById("suffix").value;
+  const insertText = document.getElementById("insertText").value;
+  const insertPos = parseInt(document.getElementById("insertPos").value) || 0;
+
+  const dateMode = document.getElementById("dateMode").value;
+  const dateFmt = document.getElementById("dateFmt").value;
+
+  const numMode = document.getElementById("numMode").value;
+  let autoNum = parseInt(document.getElementById("autoStart").value) || 1;
+  const autoIncr = parseInt(document.getElementById("autoIncr").value) || 1;
+  const autoPad = parseInt(document.getElementById("autoPad").value) || 0;
+  const autoSep = document.getElementById("autoSep").value;
 
   window.preview = loadedFiles.map(file => {
     let name = file.name;
+    let baseName = name;
+    let ext = "";
 
-    if (replaceFrom) name = name.replaceAll(replaceFrom, replaceTo);
-    if (rmDigits) name = name.replace(/\d+/g, "");
-    if (rmSymbols) name = name.replace(/[^\w.\- ]+/g, "");
-
-    if (autoEnabled) {
-      name = prefix + autoNum + "_" + name + suffix;
-      autoNum++;
-    } else {
-      name = prefix + name + suffix;
+    // Separate extension and base name
+    const lastDotIndex = name.lastIndexOf('.');
+    if (lastDotIndex > 0) {
+      baseName = name.substring(0, lastDotIndex);
+      ext = name.substring(lastDotIndex);
     }
 
-    if (caseMode === "lower") name = name.toLowerCase();
-    if (caseMode === "upper") name = name.toUpperCase();
-    if (caseMode === "title") name = toTitleCase(name);
+    // 1. RegEx
+    if (regexMatch) {
+      try {
+        const re = new RegExp(regexMatch, 'g');
+        baseName = baseName.replace(re, regexReplace);
+      } catch (e) {
+        console.error("Invalid RegEx", e);
+      }
+    }
 
-    return { old: file.name, new: name, file };
+    // 3. Replace
+    if (replaceFrom) {
+      baseName = baseName.replaceAll(replaceFrom, replaceTo);
+    }
+
+    // 5. Remove
+    if (rmFirst > 0) baseName = baseName.substring(rmFirst);
+    if (rmLast > 0) baseName = baseName.substring(0, Math.max(0, baseName.length - rmLast));
+    if (rmDigits) baseName = baseName.replace(/\d+/g, "");
+    if (rmSymbols) baseName = baseName.replace(/[^\w.\- ]+/g, "");
+
+    // 4. Case (Base Name)
+    if (caseMode === "lower") baseName = baseName.toLowerCase();
+    if (caseMode === "upper") baseName = baseName.toUpperCase();
+    if (caseMode === "title") baseName = toTitleCase(baseName);
+
+    // 7. Add (Insert, Prefix, Suffix)
+    if (insertText) {
+      const pos = Math.min(baseName.length, insertPos);
+      baseName = baseName.slice(0, pos) + insertText + baseName.slice(pos);
+    }
+    baseName = prefix + baseName + suffix;
+
+    // 8. Auto Date
+    if (dateMode !== "none") {
+      const d = new Date();
+      let dStr = "";
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      
+      if (dateFmt === "YMD") dStr = `${y}${m}${day}`;
+      if (dateFmt === "DMY") dStr = `${day}${m}${y}`;
+      if (dateFmt === "MDY") dStr = `${m}${day}${y}`;
+
+      if (dateMode === "prefix") baseName = dStr + "_" + baseName;
+      if (dateMode === "suffix") baseName = baseName + "_" + dStr;
+    }
+
+    // 10. Numbering
+    if (numMode !== "none") {
+      const numStr = String(autoNum).padStart(autoPad, '0');
+      if (numMode === "prefix") baseName = numStr + autoSep + baseName;
+      if (numMode === "suffix") baseName = baseName + autoSep + numStr;
+      autoNum += autoIncr;
+    }
+
+    // 11. Extension handling
+    if (extMode === "lower") ext = ext.toLowerCase();
+    if (extMode === "upper") ext = ext.toUpperCase();
+    if (extMode === "remove") ext = "";
+
+    const newName = baseName + ext;
+
+    return { old: file.name, new: newName, file };
   });
 
   for (const row of window.preview) {
